@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,16 +77,8 @@ WSGI_APPLICATION = 'WeLinkAPI.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-                    'read_default_file': '/path/to/my.cnf',
-                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-                },
-        'NAME': 'welink',
-        'HOST': '',
-        'PORT': '',
-        'USER': 'root',
-        'PASSWORD': '123456',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -130,9 +123,13 @@ STATIC_URL = '/static/'
 
 # login related attributes
 CLIENT_ID = '324129355486-rp1rfql4atfs4482skg1ejpg1092u0qs.apps.googleusercontent.com'
-REDIRECT_URI = 'http://localhost:8000/oauth2callback'
+REDIRECT_URI = 'http://localhost:8000/api/oauth2callback'
 CLIENT_SECRET = '4k59rxcATbYb3ry_L9ovfiWG'
 GOOGLE_ENDPOINT = 'https://www.googleapis.com'
-DEFAULT_INIT_URI = '' # welink home page
+DEFAULT_INIT_URI = 'http://localhost:8000/api/index' # welink home page
 AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 ACCESS_TOKEN_URL = 'https://oauth2.googleapis.com/token'
+SCOPES = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+]

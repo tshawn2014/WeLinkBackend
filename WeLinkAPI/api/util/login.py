@@ -12,9 +12,9 @@ from django.utils import timezone
 from django.shortcuts import redirect
 
 from WeLinkAPI.settings import CLIENT_ID, REDIRECT_URI, CLIENT_SECRET,\
-     GOOGLE_ENDPOINT, DEFAULT_INIT_URI, AUTHORIZE_URL, ACCESS_TOKEN_URL
+     GOOGLE_ENDPOINT, DEFAULT_INIT_URI, AUTHORIZE_URL, ACCESS_TOKEN_URL, SCOPES
 
-from .models import User
+from ..models import User
 '''
 Step 1:
 After user clicks login, front end call $request_auth api, and redirect to the back result;
@@ -67,15 +67,15 @@ def request_auth(request):
         request.session['oauth_struct'] = str(oauth_struct)
     oauth_struct = OAuthStruct(request.session['oauth_struct'])
     if oauth_struct.d['access_token'] == '':
-        return HttpResponse(get_oauth_login_url(client_id=CLIENT_ID, 
-                                                redirect_uri=REDIRECT_URI, 
-                                                state=oauth_struct.d['state']))
+        return get_oauth_login_url(client_id=CLIENT_ID, 
+                                    redirect_uri=REDIRECT_URI, 
+                                    state=oauth_struct.d['state'])
     else:
         oauth_struct = OAuthStruct(request.session['oauth_struct'])
         if oauth_struct.expires_within(datetime.timedelta()):
             # refresh token
             oauth_struct = refresh_oauth_token(request, oauth_struct)
-        return HttpResponse(str(oauth_struct))
+        return str(oauth_struct)
 
 def redirect_back(request):
     '''
@@ -107,10 +107,10 @@ def redirect_back(request):
     # profile = requests.get(GOOGLE_ENDPOINT+'/api/v1/users/self/profile?access_token='+access_token).json()
 
     # create or update user using profile
-    User.objects.update_or_create(userId=profile['id'], 
-        firstName=name[0],
-        lastName=name[1],
-        email=profile['login_id'])
+    # User.objects.update_or_create(userId=profile['id'], 
+    #     firstName=name[0],
+    #     lastName=name[1],
+    #     email=profile['login_id'])
     
     # TODO: avatar? self intro and other info?
 
@@ -152,7 +152,7 @@ def get_random_string(length=None, allowed_chars=(
     return ''.join(secrets.choice(allowed_chars) for i in range(length))
 
 def get_oauth_login_url(client_id, redirect_uri, response_type='code',
-                        state=None, scopes=None, purpose=None,
+                        state=None, scopes=SCOPES, purpose=None,
                         force_login=None):
     """Builds an OAuth request url for google.
     """
