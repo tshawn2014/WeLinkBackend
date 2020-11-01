@@ -1,21 +1,31 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.urls import reverse
 
-class User(models.Model):
-    email = models.CharField(max_length=50)
-    name = models.CharField(max_length=20)
-    bio = models.CharField(max_length=200)
-    avatar = models.ImageField()
+# class User(models.Model):
+#     email = models.CharField(max_length=50)
+#     name = models.CharField(max_length=20)
+#     bio = models.CharField(max_length=200)
+#     following = models.IntegerField(default=0)
+#     follower = models.IntegerField(default=0)
+#     avatar = models.ImageField()
 
-class Tag(models.Model):
-    tag_creating_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    tag_name = models.CharField(max_length=20)
+# class Tag(models.Model):
+#     tag_creating_user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     tag_name = models.CharField(max_length=20)
 
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    tag_id = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    # tag_id = models.ForeignKey(Tag, on_delete=models.CASCADE)
     content = models.CharField(max_length=500)
     post_date = models.DateField(auto_now_add=True, editable=False)
     post_time = models.TimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return self.content
+
+    def get_absolute_url(self):
+        return reverse('api-home')
 
 class PostComment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
