@@ -11,6 +11,10 @@ def callback(request):
     return login.redirect_back(request)
 
 def login_test(request):
-    del request.session['oauth_struct']
+    # del request.session['oauth_struct']
     res = login.request_auth(request)
-    return HttpResponseRedirect(str(res))
+    return HttpResponse(str(res))
+
+def rcmk(request):
+    del request.session['oauth_struct']
+    return HttpResponse('Removed')
