@@ -1,5 +1,9 @@
 from django.urls import path
-
+from .views import (
+    PostListView,
+    PostCreateView,
+    PostDeleteView
+)
 from . import views
 
 urlpatterns = [
@@ -7,4 +11,7 @@ urlpatterns = [
     path('oauth2callback', views.callback, name='oauth2callback'),
     path('rmck', views.rcmk, name='rmck'),
     path('index', views.index, name='index'),
+    path('', PostListView.as_view(), name='api-home'),
+    path('post/new/', PostCreateView.as_view(), name='post-create'),
+    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
 ]
