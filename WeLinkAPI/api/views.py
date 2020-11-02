@@ -51,3 +51,9 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+
+# TSH start
+def rmck(request):
+    del request.session['oauth_struct']
+    return HttpResponse("Removed.")
+# TSH end
