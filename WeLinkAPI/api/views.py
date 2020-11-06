@@ -6,10 +6,12 @@ from django.views.generic import (
     DeleteView,
 )
 from .util import login
-from .models import Post
+from .models import Post, User, PostComment, PostLike
 
 from django.http import HttpResponse, HttpResponseRedirect
 from .util import login
+from rest_framework import viewsets
+from .serializer import UserSerializer, PostSerializer, PostLikeSerializer, PostCommentSerializer
 
 def index(request):
     return HttpResponse("Hello, world! You can post your life here!<br>"+request.session['oauth_struct'])
@@ -56,4 +58,21 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
 def rmck(request):
     del request.session['oauth_struct']
     return HttpResponse("Removed.")
+
+# rest_framework related
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('email')
+    serializer_class = UserSerializer
+
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all().order_by('post_time')
+    serializer_class = PostSerializer
+
+class PostCommentViewSet(viewsets.ModelViewSet):
+    queryset = PostComment.objects.all()
+    serializer_class = PostCommentSerializer
+
+class PostLikeViewSet(viewsets.ModelViewSet):
+    queryset = PostLike.objects.all()
+    serializer_class = PostLikeSerializer
 # TSH end
