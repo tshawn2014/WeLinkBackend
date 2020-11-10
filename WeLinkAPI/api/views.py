@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import (
     ListView,
     CreateView,
+    UpdateView,
     DeleteView,
 )
 from .util import login
@@ -45,6 +46,21 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    fields = ['content']
+
+    # set default post author as the logged user
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    # Check if is logged
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
+
+
 class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
     success_url = '/'
@@ -53,6 +69,7 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+
 
 # TSH start
 def rmck(request):

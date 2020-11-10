@@ -2,6 +2,7 @@ from django.urls import path, include
 from .views import (
     PostListView,
     PostCreateView,
+    PostUpdateView,
     PostDeleteView,
     rmck,
     login_test,
@@ -24,6 +25,7 @@ urlpatterns = [
     path('index', index, name='index'),
     path('', PostListView.as_view(), name='api-home'),
     path('post/new/', PostCreateView.as_view(), name='post-create'),
+    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
     path('', include(router.urls)),
 ]
