@@ -26,7 +26,7 @@ SECRET_KEY = '142qn-49(1j6lbw$#*!y!^5mb*1mu-93xexf10%*kip97z-r%i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -124,10 +124,11 @@ STATIC_URL = '/static/'
 
 # login related attributes
 CLIENT_ID = '324129355486-rp1rfql4atfs4482skg1ejpg1092u0qs.apps.googleusercontent.com'
-REDIRECT_URI = 'http://localhost:8000/api/oauth2callback'
+BACK_END = 'http://ec2-35-162-119-123.us-west-2.compute.amazonaws.com:8000'
+REDIRECT_URI = BACK_END+'/api/oauth2callback'
 CLIENT_SECRET = '4k59rxcATbYb3ry_L9ovfiWG'
 GOOGLE_ENDPOINT = 'https://www.googleapis.com'
-DEFAULT_INIT_URI = 'http://localhost:8000/api/index' # welink home page
+DEFAULT_INIT_URI = BACK_END+'/api/index' # welink home page
 AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 ACCESS_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 SCOPES = [
