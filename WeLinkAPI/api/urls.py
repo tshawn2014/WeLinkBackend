@@ -11,6 +11,7 @@ from .views import (
 )
 from rest_framework import routers
 from .views import PostViewSet, UserViewSet, PostLikeViewSet, PostCommentViewSet
+from .util.login import request_auth
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -19,7 +20,8 @@ router.register(r'likes', PostLikeViewSet)
 router.register(r'comments', PostCommentViewSet)
 
 urlpatterns = [
-    path('oauth/', login_test, name='login_test'),
+    path('oauth_test/', login_test, name='login_test'),
+    path('oauth2/', request_auth, name='oauth2'),
     path('oauth2callback', callback, name='oauth2callback'),
     path('rmck', rmck, name='rmck'),
     path('index', index, name='index'),

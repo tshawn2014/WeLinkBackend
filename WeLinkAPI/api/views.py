@@ -15,7 +15,7 @@ from rest_framework import viewsets
 from .serializer import UserSerializer, PostSerializer, PostLikeSerializer, PostCommentSerializer
 
 def index(request):
-    return HttpResponse("Hello, world! You can post your life here!<br>"+request.session['oauth_struct'])
+    return HttpResponse("Hello, world! You can post your life here!<br>")
 
 def callback(request):
     return login.redirect_back(request)
@@ -23,7 +23,7 @@ def callback(request):
 def login_test(request):
     # del request.session['oauth_struct']
     res = login.request_auth(request)
-    return HttpResponseRedirect(str(res))
+    return HttpResponseRedirect(res.content)
 
 def home(request):
     context = {

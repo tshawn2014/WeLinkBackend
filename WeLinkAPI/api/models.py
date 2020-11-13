@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.conf import settings
+from django.utils import timezone
 
 class User(models.Model):
     email = models.CharField(max_length=50)
@@ -15,6 +16,29 @@ class User(models.Model):
         on_delete=models.CASCADE,
         related_name='login',
     )
+    # access_token: authorization for canvas api
+    access_token = models.TextField(null=True)
+    # refresh_token: if expire, use this to refresh
+    refresh_token = models.TextField(null=True)
+    # expires: expiration time
+    expires = models.DateTimeField(null=True)
+    created_on = models.DateTimeField(auto_now_add=True, null=True)
+    updated_on = models.DateTimeField(auto_now=True, null=True)
+
+    def expires_within(self, delta):
+        """
+        Check token expiration with timezone awareness within
+        the given amount of time, expressed as a timedelta.
+
+        :param delta: The timedelta to check expiration against
+        """
+        if not self.expires:
+            return False
+
+        return self.expires - timezone.now() <= delta
+
+    def __str__(self):
+        return "CanvasOAuth2Token:%s" % self.user
 
 # class Tag(models.Model):
 #     tag_creating_user = models.ForeignKey(User, on_delete=models.CASCADE)

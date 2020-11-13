@@ -15,6 +15,9 @@ from WeLinkAPI.settings import CLIENT_ID, REDIRECT_URI, CLIENT_SECRET,\
      GOOGLE_ENDPOINT, DEFAULT_INIT_URI, AUTHORIZE_URL, ACCESS_TOKEN_URL, SCOPES
 
 from ..models import User
+from django.contrib.auth.models import User as AuthUser
+from django.contrib.auth import authenticate, login, logout
+
 '''
 Step 1:
 After user clicks login, front end call $request_auth api, and redirect to the back result;
@@ -27,55 +30,28 @@ then back end page ===> front end page
 def strToDatatime(date_time_str):
     return datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S.%f')
 
-class OAuthStruct:
-    '''
-    data structure to help with store necessary data
-    '''
-    def __init__(self, js_str=None):
-        self.d = {}
-        if(js_str==None):
-            self.d['state'] = get_random_string()
-            self.d['access_token'] = ''
-            self.d['refresh_token'] = ''
-            self.d['created'] = str(timezone.now())
-            self.d['expires'] = ''
-            self.d['updated'] = ''
-        else:
-            self.d = json.loads(js_str)
-
-    def __str__(self):
-        return json.dumps(self.d)
-
-    def expires_within(self, delta):
-        """
-        Check token expiration with timezone awareness within
-        the given amount of time, expressed as a timedelta.
-        :param delta: The timedelta to check expiration against
-        """
-        if not self.d['expires'] == '':
-            return False
-        return strToDatatime(self.d['expires']) - timezone.now() <= delta
-
 def request_auth(request):
     '''
     use this method to get google auth link, i.e. request authorization code;
 
     '''
+    request.session['stt'] = get_random_string()
     request.session['init_uri'] = request.GET.get("init_uri", '')
-    if 'oauth_struct' not in request.session:
-        oauth_struct = OAuthStruct()
-        request.session['oauth_struct'] = str(oauth_struct)
-    oauth_struct = OAuthStruct(request.session['oauth_struct'])
-    if oauth_struct.d['access_token'] == '':
-        return get_oauth_login_url(client_id=CLIENT_ID, 
-                                    redirect_uri=REDIRECT_URI, 
-                                    state=oauth_struct.d['state'])
-    else:
-        oauth_struct = OAuthStruct(request.session['oauth_struct'])
-        if oauth_struct.expires_within(datetime.timedelta()):
+    while request.user.is_authenticated:
+        try:
+            userLogin = User.objects.filter(user = request.user)[0]
+        except:
+            break;
+        if userLogin.expires_within(datetime.timedelta()):
             # refresh token
-            oauth_struct = refresh_oauth_token(request, oauth_struct)
-        return str(oauth_struct)
+            userLogin.access_token, userLogin.expires = refresh_oauth_token(request, userLogin.refresh_token)
+        userLogin.save()
+        login(request, request.user)
+        return HttpResponse('OK')
+    return HttpResponse(get_oauth_login_url(client_id=CLIENT_ID,
+                        redirect_uri=REDIRECT_URI,
+                        state=request.session['stt']))
+
 
 def redirect_back(request):
     '''
@@ -87,8 +63,7 @@ def redirect_back(request):
         return HttpResponse(status=404)
     code = request.GET.get('code')
     state = request.GET.get('state')
-    oauth_struct = OAuthStruct(request.session['oauth_struct'])
-    if state != oauth_struct.d['state']:
+    if state != request.session['stt']:
         return HttpResponse(status=400)
 
     access_token, expires, refresh_token = get_access_token(
@@ -97,25 +72,29 @@ def redirect_back(request):
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
         code=code)
-    # store oauth_struct
-    oauth_struct.d['access_token'] = access_token
-    oauth_struct.d['expires'] = expires
-    oauth_struct.d['refresh_token'] = refresh_token
-    request.session['oauth_struct'] = str(oauth_struct)
 
     # get info from google
-    # profile = requests.get(GOOGLE_ENDPOINT+'/api/v1/users/self/profile?access_token='+access_token).json()
-
+    profile = requests.get(GOOGLE_ENDPOINT+'/oauth2/v1/userinfo?alt=json&access_token='+access_token).json()
+    print('profile:', profile)
+    print('request.user:', request.user)
+    try:
+        user = AuthUser.objects.get(username=profile['email'])
+    except AuthUser.DoesNotExist:
+        user = AuthUser.objects.create_user(profile['email'])
+    login(request, user)
     # create or update user using profile
-    # User.objects.update_or_create(userId=profile['id'], 
-    #     firstName=name[0],
-    #     lastName=name[1],
-    #     email=profile['login_id'])
+    User.objects.update_or_create(user = request.user,
+        access_token = access_token,
+        refresh_token = refresh_token,
+        expires = expires,
+        created_on = str(timezone.now()),
+        updated_on = str(timezone.now()))
     
     # TODO: avatar? self intro and other info?
 
     # set redirect uri after authorization
     init_uri = DEFAULT_INIT_URI
+    print("init_uri in call back:", init_uri)
     if 'init_uri' not in request.session:
         init_uri = request.session['init_uri']
     
@@ -127,13 +106,13 @@ def request_token(request):
     '''
     pass
 
-def refresh_oauth_token(request, oauth_struct):
+def refresh_oauth_token(request, refresh_token):
 
     '''
     Get the new access token and expiration date via
     a refresh token grant
     '''
-    oauth_struct.d['access_token'], oauth_struct.d['expires'], _ = get_access_token(
+    acs_tk, exp, _ = get_access_token(
         grant_type='refresh_token',
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
@@ -141,7 +120,7 @@ def refresh_oauth_token(request, oauth_struct):
         refresh_token=oauth_struct.d['refresh_token'])
     # Update the model with new token and expiration
     request.session['oauth_struct'] = str(oauth_struct)
-    return oauth_struct
+    return acs_tk, exp
 
 def get_random_string(length=None, allowed_chars=(
     'abcdefghijklmnopqrstuvwxyz'
@@ -175,6 +154,7 @@ def get_oauth_login_url(client_id, redirect_uri, response_type='code',
                                     params=auth_request_params)
     # Prepared request url uses urlencode for encoding and scrubs any None
     # key-value pairs
+    print(auth_request.prepare().url)
     return auth_request.prepare().url
 
 def get_access_token(grant_type, client_id, client_secret, redirect_uri, code=None, refresh_token=None):
