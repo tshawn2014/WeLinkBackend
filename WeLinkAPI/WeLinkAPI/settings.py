@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'WeLinkAPI.urls'
@@ -141,10 +144,15 @@ CLIENT_ID = '324129355486-rp1rfql4atfs4482skg1ejpg1092u0qs.apps.googleuserconten
 REDIRECT_URI = 'http://localhost:8000/api/oauth2callback'
 CLIENT_SECRET = '4k59rxcATbYb3ry_L9ovfiWG'
 GOOGLE_ENDPOINT = 'https://www.googleapis.com'
-DEFAULT_INIT_URI = 'http://localhost:8000/api/index' # welink home page
+DEFAULT_INIT_URI = 'http://localhost:3000/login' # welink home page
 AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 ACCESS_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 SCOPES = [
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:3000",
+    "http://localhost:3000"
 ]

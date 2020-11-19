@@ -35,7 +35,6 @@ def request_auth(request):
     use this method to get google auth link, i.e. request authorization code;
 
     '''
-    request.session['stt'] = get_random_string()
     request.session['init_uri'] = request.GET.get("init_uri", '')
     while request.user.is_authenticated:
         try:
@@ -50,7 +49,7 @@ def request_auth(request):
         return HttpResponse('OK')
     return HttpResponse(get_oauth_login_url(client_id=CLIENT_ID,
                         redirect_uri=REDIRECT_URI,
-                        state=request.session['stt']))
+                        state=''))
 
 
 def redirect_back(request):
@@ -63,8 +62,8 @@ def redirect_back(request):
         return HttpResponse(status=404)
     code = request.GET.get('code')
     state = request.GET.get('state')
-    if state != request.session['stt']:
-        return HttpResponse(status=400)
+    # if state != request.session['stt']:
+    #     return HttpResponse(status=400)
 
     access_token, expires, refresh_token = get_access_token(
         grant_type='authorization_code',
@@ -83,19 +82,28 @@ def redirect_back(request):
         user = AuthUser.objects.create_user(profile['email'])
     login(request, user)
     # create or update user using profile
-    User.objects.update_or_create(user = request.user,
-        access_token = access_token,
-        refresh_token = refresh_token,
-        expires = expires,
-        created_on = str(timezone.now()),
-        updated_on = str(timezone.now()))
+    try:
+        u = User.objects.get(user = request.user)
+        u.access_token = access_token
+        u.refresh_token = refresh_token
+        u.expires = expires
+        u.created_on = str(timezone.now())
+        u.updated_on = str(timezone.now())
+        u.save()
+    except User.DoesNotExist:
+        User.objects.update(user = request.user,
+            access_token = access_token,
+            refresh_token = refresh_token,
+            expires = expires,
+            created_on = str(timezone.now()),
+            updated_on = str(timezone.now()))
     
     # TODO: avatar? self intro and other info?
 
     # set redirect uri after authorization
     init_uri = DEFAULT_INIT_URI
     print("init_uri in call back:", init_uri)
-    if 'init_uri' not in request.session:
+    if 'init_uri' in request.session:
         init_uri = request.session['init_uri']
     
     return redirect(init_uri)
@@ -112,6 +120,10 @@ def refresh_oauth_token(request, refresh_token):
     Get the new access token and expiration date via
     a refresh token grant
     '''
+    try:
+        user = AuthUser.objects.get(request.user)
+    except AuthUser.DoesNotExist:
+        pass
     acs_tk, exp, _ = get_access_token(
         grant_type='refresh_token',
         client_id=CLIENT_ID,
