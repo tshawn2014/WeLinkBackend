@@ -7,12 +7,12 @@ from django.views.generic import (
     DeleteView,
 )
 from .util import login
-from .models import Post, User, PostComment, PostLike
+from .models import Post, Profile, PostComment, PostLike
 
 from django.http import HttpResponse, HttpResponseRedirect
 from .util import login
 from rest_framework import viewsets
-from .serializer import UserSerializer, PostSerializer, PostLikeSerializer, PostCommentSerializer
+from .serializer import ProfileSerializer, PostSerializer, PostLikeSerializer, PostCommentSerializer
 
 def index(request):
     return HttpResponse("Hello, world! You can post your life here!<br>")
@@ -77,12 +77,12 @@ def rmck(request):
     return HttpResponse("Removed.")
 
 # rest_framework related
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('email')
-    serializer_class = UserSerializer
+class ProfileViewSet(viewsets.ModelViewSet):
+    queryset = Profile.objects.all().order_by('email')
+    serializer_class = ProfileSerializer
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().order_by('post_time')
+    queryset = Post.objects.all().order_by('create_time')
     serializer_class = PostSerializer
 
 class PostCommentViewSet(viewsets.ModelViewSet):

@@ -10,11 +10,11 @@ from .views import (
     index,
 )
 from rest_framework import routers
-from .views import PostViewSet, UserViewSet, PostLikeViewSet, PostCommentViewSet
+from .views import PostViewSet, ProfileViewSet, PostLikeViewSet, PostCommentViewSet
 from .util.login import request_auth
 
 router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
+router.register(r'users', ProfileViewSet)
 router.register(r'posts', PostViewSet)
 router.register(r'likes', PostLikeViewSet)
 router.register(r'comments', PostCommentViewSet)

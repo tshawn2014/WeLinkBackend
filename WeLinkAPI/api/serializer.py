@@ -1,11 +1,11 @@
 from django.urls import path, include
-from .models import User, Post, PostComment, PostLike
+from .models import Profile, Post, PostComment, PostLike
 from rest_framework import serializers
 
 # Serializers define the API representation.
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class ProfileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = User
+        model = Profile
         fields = "__all__"
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
@@ -22,3 +22,4 @@ class PostLikeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = PostLike
         fields = "__all__"
+
