@@ -38,7 +38,7 @@ class User(models.Model):
         return self.expires - timezone.now() <= delta
 
     def __str__(self):
-        return "CanvasOAuth2Token:%s" % self.user
+        return "%s" % self.user
 
 # class Tag(models.Model):
 #     tag_creating_user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -58,7 +58,7 @@ class Post(models.Model):
         return reverse('api-home')
 
 class PostComment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.CharField(max_length=500)
     comment_date = models.DateField(auto_now_add=True, editable=False)

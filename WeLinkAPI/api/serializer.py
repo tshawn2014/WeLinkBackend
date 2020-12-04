@@ -3,22 +3,26 @@ from .models import User, Post, PostComment, PostLike
 from rest_framework import serializers
 
 # Serializers define the API representation.
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
 
-class PostSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Post
-        fields = "__all__"
-
-class PostCommentSerializer(serializers.HyperlinkedModelSerializer):
+class PostCommentSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = PostComment
         fields = "__all__"
 
-class PostLikeSerializer(serializers.HyperlinkedModelSerializer):
+class PostSerializer(serializers.ModelSerializer):
+    comments = PostCommentSerializer(many=True, read_only=True)
+    class Meta:
+        model = Post
+        fields = "__all__"
+
+
+
+class PostLikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostLike
         fields = "__all__"

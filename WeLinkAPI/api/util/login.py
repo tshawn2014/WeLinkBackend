@@ -91,7 +91,7 @@ def redirect_back(request):
         u.updated_on = str(timezone.now())
         u.save()
     except User.DoesNotExist:
-        User.objects.update(user = request.user,
+        User.objects.update_or_create(user = request.user,
             access_token = access_token,
             refresh_token = refresh_token,
             expires = expires,
