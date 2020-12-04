@@ -54,7 +54,7 @@ class Post(models.Model):
 class PostComment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.CharField(max_length=500)
+    comment = models.CharField(max_length=500)
     create_time = models.TimeField(auto_now_add=True, editable=False)
 
 class PostLike(models.Model):
