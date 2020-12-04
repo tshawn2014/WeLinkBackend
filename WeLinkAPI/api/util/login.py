@@ -14,7 +14,7 @@ from django.shortcuts import redirect
 from WeLinkAPI.settings import CLIENT_ID, REDIRECT_URI, CLIENT_SECRET,\
      GOOGLE_ENDPOINT, DEFAULT_INIT_URI, AUTHORIZE_URL, ACCESS_TOKEN_URL, SCOPES
 
-from ..models import User
+from ..models import Profile as User
 from django.contrib.auth.models import User as AuthUser
 from django.contrib.auth import authenticate, login, logout
 
