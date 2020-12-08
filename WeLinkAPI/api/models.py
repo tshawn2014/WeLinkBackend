@@ -54,8 +54,11 @@ class Post(models.Model):
 class PostComment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.CharField(max_length=500)
+    content = models.CharField(max_length=500)
     create_time = models.TimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return self.content
 
 class PostLike(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -65,4 +68,9 @@ class PostLike(models.Model):
 class Friend(models.Model):
     friend_from = models.ForeignKey(User, related_name='friend_from',on_delete=models.CASCADE)
     friend_to = models.ForeignKey(User, related_name='friend_to',on_delete=models.CASCADE)
+    tag_info = models.CharField(max_length=20, null=True)
     create_time = models.TimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return str(self.friend_from.username) + ' tag ' + str(self.friend_to.username) + ' as ' + self.tag_info
+
