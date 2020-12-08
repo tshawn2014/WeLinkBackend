@@ -11,7 +11,7 @@ from .models import Post, Profile, PostComment, PostLike
 
 from django.http import HttpResponse, HttpResponseRedirect
 from .util import login
-from rest_framework import viewsets
+from rest_framework import viewsets, generics, filters
 from .serializer import ProfileSerializer, PostSerializer, PostLikeSerializer, PostCommentSerializer
 
 def index(request):
@@ -35,7 +35,7 @@ class PostListView(ListView):
     model = Post
     template_name = 'api/home.html'
     context_object_name = 'posts'
-    ordering = ['-post_date']
+    ordering = ['-create_time']
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -78,6 +78,8 @@ def rmck(request):
 
 # rest_framework related
 class ProfileViewSet(viewsets.ModelViewSet):
+    search_fields = ['email', 'name']
+    filter_backends = (filters.SearchFilter,)
     queryset = Profile.objects.all().order_by('email')
     serializer_class = ProfileSerializer
 

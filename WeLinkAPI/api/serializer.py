@@ -3,7 +3,7 @@ from .models import Profile, Post, PostComment, PostLike
 from rest_framework import serializers
 
 # Serializers define the API representation.
-class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = "__all__"

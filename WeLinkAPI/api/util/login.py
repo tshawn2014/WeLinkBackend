@@ -85,13 +85,17 @@ def redirect_back(request):
     try:
         u = User.objects.get(user = request.user)
         u.access_token = access_token
+        u.email = profile['email'],
+        u.name = profile['name'],
         u.refresh_token = refresh_token
         u.expires = expires
-        u.created_on = str(timezone.now())
+        # u.created_on = str(timezone.now())
         u.updated_on = str(timezone.now())
         u.save()
     except User.DoesNotExist:
         User.objects.update_or_create(user = request.user,
+            email = profile['email'],
+            name = profile['name'],
             access_token = access_token,
             refresh_token = refresh_token,
             expires = expires,
