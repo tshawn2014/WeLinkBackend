@@ -75,7 +75,6 @@ def redirect_back(request):
     # get info from google
     profile = requests.get(GOOGLE_ENDPOINT+'/oauth2/v1/userinfo?alt=json&access_token='+access_token).json()
     print('profile:', profile)
-    print('request.user:', request.user)
     try:
         user = AuthUser.objects.get(username=profile['email'])
     except AuthUser.DoesNotExist:
@@ -101,14 +100,13 @@ def redirect_back(request):
             expires = expires,
             created_on = str(timezone.now()),
             updated_on = str(timezone.now()))
-    
-    # TODO: avatar? self intro and other info?
-
+    login(request, user)
+    print('request.user:', request.user)
     # set redirect uri after authorization
     init_uri = DEFAULT_INIT_URI
-    print("init_uri in call back:", init_uri)
-    if 'init_uri' in request.session:
-        init_uri = request.session['init_uri']
+    # print("init_uri in call back:", init_uri)
+    # if 'init_uri' in request.session:
+    #     init_uri = request.session['init_uri']
     
     return redirect(init_uri)
 
@@ -133,9 +131,9 @@ def refresh_oauth_token(request, refresh_token):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
-        refresh_token=oauth_struct.d['refresh_token'])
+        refresh_token=refresh_token)
     # Update the model with new token and expiration
-    request.session['oauth_struct'] = str(oauth_struct)
+    # request.session['oauth_struct'] = str(oauth_struct)
     return acs_tk, exp
 
 def get_random_string(length=None, allowed_chars=(
@@ -202,6 +200,7 @@ def get_access_token(grant_type, client_id, client_secret, redirect_uri, code=No
     # Parse the response for the access_token, expiration time, and (possibly)
     # the refresh token
     response_data = r.json()
+    print("response_data", response_data)
     access_token = response_data['access_token']
     seconds_to_expire = response_data['expires_in']
     # Convert the expiration time in seconds to a DateTime

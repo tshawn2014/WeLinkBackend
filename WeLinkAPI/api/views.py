@@ -7,12 +7,15 @@ from django.views.generic import (
     DeleteView,
 )
 from .util import login
-from .models import Post, Profile, PostComment, PostLike
+from .models import Post, Profile, PostComment, PostLike, Friend, Tag, PostTag
 
 from django.http import HttpResponse, HttpResponseRedirect
 from .util import login
 from rest_framework import viewsets, generics, filters
-from .serializer import ProfileSerializer, PostSerializer, PostLikeSerializer, PostCommentSerializer
+from .serializer import ProfileSerializer, PostSerializer, PostLikeSerializer, PostCommentSerializer, AuthUserSerializer, FriendSerializer, PostTagSerializer, TagSerializer
+from django.contrib.auth import logout
+from django.contrib.auth.models import User as AuthUser
+
 
 def index(request):
     return HttpResponse("Hello, world! You can post your life here!<br>")
@@ -73,7 +76,8 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
 
 # TSH start
 def rmck(request):
-    del request.session['oauth_struct']
+    # del request.session['oauth_struct']
+    logout(request)
     return HttpResponse("Removed.")
 
 # rest_framework related
@@ -94,4 +98,20 @@ class PostCommentViewSet(viewsets.ModelViewSet):
 class PostLikeViewSet(viewsets.ModelViewSet):
     queryset = PostLike.objects.all()
     serializer_class = PostLikeSerializer
+
+class AuthUserViewSet(viewsets.ModelViewSet):
+    queryset = AuthUser.objects.all()
+    serializer_class = AuthUserSerializer
+
+class FriendViewSet(viewsets.ModelViewSet):
+    queryset = Friend.objects.all()
+    serializer_class = FriendSerializer
+
+class PostTagViewSet(viewsets.ModelViewSet):
+    queryset = PostTag.objects.all()
+    serializer_class = PostTagSerializer
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
 # TSH end

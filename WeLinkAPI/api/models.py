@@ -41,7 +41,7 @@ class Profile(models.Model):
 
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.CharField(max_length=500)
+    content = models.CharField(max_length=500, null=True)
     create_time = models.TimeField(auto_now_add=True, editable=False)
     update_time = models.TimeField(auto_now_add=True, editable=False, null=True)
 
@@ -53,7 +53,7 @@ class Post(models.Model):
 
 class PostComment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     content = models.CharField(max_length=500)
     create_time = models.TimeField(auto_now_add=True, editable=False)
 
@@ -65,12 +65,25 @@ class PostLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     create_time = models.TimeField(auto_now_add=True, editable=False)
 
+class Tag(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tag_info = models.CharField(max_length=20)
+    # def __str__(self):
+    #     return self.user.id +"manages tag:" + self.tag_info
+
 class Friend(models.Model):
     friend_from = models.ForeignKey(User, related_name='friend_from',on_delete=models.CASCADE)
     friend_to = models.ForeignKey(User, related_name='friend_to',on_delete=models.CASCADE)
-    tag_info = models.CharField(max_length=20, null=True)
+    tag = models.ForeignKey(Tag, related_name='tag_of_friend',on_delete=models.CASCADE, null=True)
     create_time = models.TimeField(auto_now_add=True, editable=False)
 
-    def __str__(self):
-        return str(self.friend_from.username) + ' tag ' + str(self.friend_to.username) + ' as ' + self.tag_info
+    # def __str__(self):
+    #     return str(self.friend_from.username) + ' tag ' + str(self.friend_to.username) + ' as ' + self.tag_info
 
+
+
+class PostTag(models.Model):
+    post = models.ForeignKey(Post, related_name='post',on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, related_name='tag_of_post',on_delete=models.CASCADE)
+    # def __str__(self):
+    #     return self.post.id + 'has tag:' + self.tag.tag_info
