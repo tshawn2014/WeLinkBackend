@@ -12,7 +12,7 @@ from .views import (
 from rest_framework import routers
 from .views import PostViewSet, ProfileViewSet, PostLikeViewSet, PostCommentViewSet, AuthUserViewSet,FriendViewSet, TagViewSet, PostTagViewSet
 from .util.login import request_auth
-from .util.actions import add_friends, delete_friends, get_friends, add_tag, get_visible_posts
+from .util.actions import add_friends, delete_friends, get_friends, add_tag, get_visible_posts, remove_tag
 
 router = routers.DefaultRouter()
 router.register(r'profiles', ProfileViewSet)
@@ -32,6 +32,7 @@ urlpatterns = [
     path('followers', get_friends, name='followers'),
     path('unfollow', delete_friends, name='unfollow'),
     path('add_tag', add_tag, name='add_tag'),
+    path('remove_tag', remove_tag, name='remove_tag'),
     path('newsfeed', get_visible_posts, name='newsfeed'),
     path('rmck', rmck, name='rmck'),
     path('index', index, name='index'),
