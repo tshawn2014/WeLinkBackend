@@ -92,7 +92,7 @@ def redirect_back(request):
         u.updated_on = str(timezone.now())
         u.save()
     except User.DoesNotExist:
-        User.objects.update_or_create(user = request.user,
+        u,_= User.objects.update_or_create(user = request.user,
             email = profile['email'],
             name = profile['name'],
             access_token = access_token,
@@ -103,7 +103,9 @@ def redirect_back(request):
     login(request, user)
     print('request.user:', request.user)
     # set redirect uri after authorization
-    init_uri = DEFAULT_INIT_URI
+    print(u)
+    print("id", u.id)
+    init_uri = DEFAULT_INIT_URI+'/'+str(u.id)
     # print("init_uri in call back:", init_uri)
     # if 'init_uri' in request.session:
     #     init_uri = request.session['init_uri']

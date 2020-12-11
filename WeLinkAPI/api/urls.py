@@ -12,7 +12,7 @@ from .views import (
 from rest_framework import routers
 from .views import PostViewSet, ProfileViewSet, PostLikeViewSet, PostCommentViewSet, AuthUserViewSet,FriendViewSet, TagViewSet, PostTagViewSet
 from .util.login import request_auth
-from .util.actions import add_friends, delete_friends, get_friends, add_tag, get_visible_posts, remove_tag
+from .util.actions import add_friends, delete_friends, get_friends, add_tag, get_visible_posts, remove_tag, get_visible_posts_of_one, get_followers, new_post, delete_post, delete_comment
 
 router = routers.DefaultRouter()
 router.register(r'profiles', ProfileViewSet)
@@ -29,11 +29,16 @@ urlpatterns = [
     path('oauth2/', request_auth, name='oauth2'),
     path('oauth2callback', callback, name='oauth2callback'),
     path('follow', add_friends, name='follow'),
-    path('followers', get_friends, name='followers'),
+    path('followers', get_followers, name='followers'),
+    path('followings', get_friends, name='followings'),
     path('unfollow', delete_friends, name='unfollow'),
     path('add_tag', add_tag, name='add_tag'),
     path('remove_tag', remove_tag, name='remove_tag'),
     path('newsfeed', get_visible_posts, name='newsfeed'),
+    path('timeline', get_visible_posts_of_one, name='timeline'),
+    path('new_post', new_post, name='new_post'),
+    path('delete_post', delete_post, name='delete_post'),
+    path('delete_comment', delete_comment, name='delete_comment'),
     path('rmck', rmck, name='rmck'),
     path('index', index, name='index'),
     # path('', PostListView.as_view(), name='api-home'),
