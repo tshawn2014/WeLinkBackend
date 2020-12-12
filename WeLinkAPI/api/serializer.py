@@ -23,6 +23,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 
+
 class PostLikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostLike

@@ -8,7 +8,7 @@ class Profile(models.Model):
     email = models.CharField(max_length=50)
     name = models.CharField(max_length=20)
     bio = models.CharField(max_length=200)
-    avatar = models.ImageField()
+    avatar = models.CharField(max_length=250)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

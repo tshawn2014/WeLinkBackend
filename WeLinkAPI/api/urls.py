@@ -12,7 +12,12 @@ from .views import (
 from rest_framework import routers
 from .views import PostViewSet, ProfileViewSet, PostLikeViewSet, PostCommentViewSet, AuthUserViewSet,FriendViewSet, TagViewSet, PostTagViewSet
 from .util.login import request_auth
-from .util.actions import add_friends, delete_friends, get_friends, add_tag, get_visible_posts, remove_tag, get_visible_posts_of_one, get_followers, new_post, delete_post, delete_comment
+from .util.actions import (add_friends, delete_friends, 
+        get_friends, add_tag, get_visible_posts, 
+        remove_tag, get_visible_posts_of_one, 
+        get_followers, new_post, delete_post, 
+        get_all_tags_of_one_user,
+        delete_comment,search_friends)
 
 router = routers.DefaultRouter()
 router.register(r'profiles', ProfileViewSet)
@@ -37,8 +42,10 @@ urlpatterns = [
     path('newsfeed', get_visible_posts, name='newsfeed'),
     path('timeline', get_visible_posts_of_one, name='timeline'),
     path('new_post', new_post, name='new_post'),
+    path('search_friends', search_friends, name='search_friends'),
     path('delete_post', delete_post, name='delete_post'),
     path('delete_comment', delete_comment, name='delete_comment'),
+    path('all_tags', get_all_tags_of_one_user, name='all_tags'),
     path('rmck', rmck, name='rmck'),
     path('index', index, name='index'),
     # path('', PostListView.as_view(), name='api-home'),

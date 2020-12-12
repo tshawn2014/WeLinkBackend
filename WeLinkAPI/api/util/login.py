@@ -30,6 +30,10 @@ then back end page ===> front end page
 def strToDatatime(date_time_str):
     return datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S.%f')
 
+def purifyString(s):
+    s.replace('(', '').replace(')', '').replace('\'', '').replace(',','')
+    return s
+
 def request_auth(request):
     '''
     use this method to get google auth link, i.e. request authorization code;
@@ -75,6 +79,10 @@ def redirect_back(request):
     # get info from google
     profile = requests.get(GOOGLE_ENDPOINT+'/oauth2/v1/userinfo?alt=json&access_token='+access_token).json()
     print('profile:', profile)
+    profile['email'] = purifyString(profile['email'])
+    profile['name'] = purifyString(profile['name'])
+    profile['picture'] = purifyString(profile['picture'])
+    print(profile)
     try:
         user = AuthUser.objects.get(username=profile['email'])
     except AuthUser.DoesNotExist:
@@ -84,8 +92,9 @@ def redirect_back(request):
     try:
         u = User.objects.get(user = request.user)
         u.access_token = access_token
-        u.email = profile['email'],
-        u.name = profile['name'],
+        u.email = profile['email']
+        u.name = profile['name']
+        u.avatar = profile['picture']
         u.refresh_token = refresh_token
         u.expires = expires
         # u.created_on = str(timezone.now())
@@ -95,6 +104,7 @@ def redirect_back(request):
         u,_= User.objects.update_or_create(user = request.user,
             email = profile['email'],
             name = profile['name'],
+            avatar = profile['picture'],
             access_token = access_token,
             refresh_token = refresh_token,
             expires = expires,
@@ -103,9 +113,9 @@ def redirect_back(request):
     login(request, user)
     print('request.user:', request.user)
     # set redirect uri after authorization
-    print(u)
-    print("id", u.id)
-    init_uri = DEFAULT_INIT_URI+'/'+str(u.id)
+    # print(u)
+    # print("id", u.id)
+    init_uri = DEFAULT_INIT_URI+'/'+str(user.id)
     # print("init_uri in call back:", init_uri)
     # if 'init_uri' in request.session:
     #     init_uri = request.session['init_uri']

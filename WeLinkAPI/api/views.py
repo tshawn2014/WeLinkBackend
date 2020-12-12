@@ -88,7 +88,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().order_by('create_time')
+    queryset = Post.objects.all().order_by('-create_time')
     serializer_class = PostSerializer
 
 class PostCommentViewSet(viewsets.ModelViewSet):
