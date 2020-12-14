@@ -86,6 +86,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     queryset = Profile.objects.all().order_by('email')
     serializer_class = ProfileSerializer
+    def get_queryset(self):
+        queryset = Profile.objects.all()
+        user_id = self.request.query_params.get('user', None)
+        if user_id is not None:
+            queryset = queryset.filter(user__id=int(user_id))
+        return queryset
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-create_time')

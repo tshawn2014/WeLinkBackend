@@ -67,7 +67,7 @@ def delete_friends(request):
 
 # add friends tag
 def add_tag(request):
-    tag = int(request.GET.get('tag', ''))
+    tag = request.GET.get('tag', '')
     # f_from = request.user
     f_from_id = int(request.GET.get('f_from'))
     f_to_id = int(request.GET.get('f_to'))
@@ -340,6 +340,11 @@ def get_visible_posts(request):
         p = Profile.objects.get(user__id=int(author))
         x['imgUrl'] = p.avatar
         x['name'] = p.name
+        for c in x['comments']:
+            author = int(c['author'])
+            p = Profile.objects.get(user__id=int(author))
+            c['imgUrl'] = p.avatar
+            c['name'] = p.name
     # json = JSONRenderer().render(res.data)
     js = json.dumps(res)
     # js = 0
@@ -363,24 +368,26 @@ def get_visible_posts_of_one(request):
     tags = []
     if user_id != f_to_id:
         tags = Friend.objects.filter(friend_to=user, friend_from=f_to).select_related('tag')
-    # print(tags)
-    # get all posts
-    res = None
-    for t in tags:
+        # print(tags)
+        # get all posts
+        res = None
+        for t in tags:
+            if res == None:
+                res = PostTag.objects.filter(tag=t.tag).select_related("post")
+            else:
+                p = PostTag.objects.filter(tag=t.tag).select_related("post")
+                res.union(p)
         if res == None:
-            res = PostTag.objects.filter(tag=t.tag).select_related("post")
-        else:
-            p = PostTag.objects.filter(tag=t.tag).select_related("post")
-            res.union(p)
-    if res == None:
-        print("no tag")
-        return HttpResponse(json.dumps([]))
-    ids = [int(x["post__id"]) for x in res.values("post__id")]
-    p = Post.objects.filter(author=user)
-    for x in p:
-        if int(x.id) not in ids:
-            ids.append(int(x.id))
-    q = Post.objects.filter(id__in=ids).order_by("-create_time")
+            print("no tag")
+            return HttpResponse(json.dumps([]))
+        ids = [int(x["post__id"]) for x in res.values("post__id")]
+        # p = Post.objects.filter(author=user)
+        # for x in p:
+        #     if int(x.id) not in ids:
+        #         ids.append(int(x.id))
+        q = Post.objects.filter(id__in=ids).order_by("-create_time")
+    else:
+        q = Post.objects.filter(author=user).order_by("-create_time")
     res = [PostSerializer(x).data for x in q]
     # print(res)
     for x in res:
@@ -388,6 +395,11 @@ def get_visible_posts_of_one(request):
         p = Profile.objects.get(user__id=int(author))
         x['imgUrl'] = p.avatar
         x['name'] = p.name
+        for c in x['comments']:
+            author = int(c['author'])
+            p = Profile.objects.get(user__id=int(author))
+            c['imgUrl'] = p.avatar
+            c['name'] = p.name
     js = json.dumps(res)
     # js = 0
     return HttpResponse(js)
@@ -412,7 +424,7 @@ def make_comment(request):
 # new post
 def new_post(request):
     author_id = int(request.GET.get('author'))
-    content = int(request.GET.get('content'))
+    content = request.GET.get('content')
     tags = request.GET.getlist('tags')
     print(tags)
     try:
