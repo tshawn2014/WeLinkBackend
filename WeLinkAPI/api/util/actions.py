@@ -87,7 +87,7 @@ def add_tag(request):
     return HttpResponse('OK')
 
 def remove_tag(request):
-    tag = int(request.GET.get('tag', ''))
+    tag = request.GET.get('tag', '')
     if tag == '':
         print("tag cannot be empty")
         return HttpResponse("not OK") 
