@@ -320,14 +320,17 @@ def get_visible_posts(request):
     res = None
     for t in tags:
         if res == None:
-            res = PostTag.objects.filter(tag=t.tag).select_related("post")
+            p = PostTag.objects.filter(tag=t.tag).select_related("post")
+            res = [int(x["post__id"]) for x in p.values("post__id")] 
         else:
             p = PostTag.objects.filter(tag=t.tag).select_related("post")
-            res.union(p)
+            res += [int(x["post__id"]) for x in p.values("post__id")]
     if res == None:
         print("no tag")
         return HttpResponse(json.dumps([]))
-    ids = [int(x["post__id"]) for x in res.values("post__id")]
+    # ids = [int(x["post__id"]) for x in res.values("post__id")]
+    ids = res
+    print(ids)
     p = Post.objects.filter(author=user)
     for x in p:
         if int(x.id) not in ids:
@@ -373,14 +376,16 @@ def get_visible_posts_of_one(request):
         res = None
         for t in tags:
             if res == None:
-                res = PostTag.objects.filter(tag=t.tag).select_related("post")
+                p = PostTag.objects.filter(tag=t.tag).select_related("post")
+                res = [int(x["post__id"]) for x in p.values("post__id")]
             else:
                 p = PostTag.objects.filter(tag=t.tag).select_related("post")
-                res.union(p)
+                res += [int(x["post__id"]) for x in p.values("post__id")]
         if res == None:
             print("no tag")
             return HttpResponse(json.dumps([]))
-        ids = [int(x["post__id"]) for x in res.values("post__id")]
+        # ids = [int(x["post__id"]) for x in res.values("post__id")]
+        ids = res
         # p = Post.objects.filter(author=user)
         # for x in p:
         #     if int(x.id) not in ids:
